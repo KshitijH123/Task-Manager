@@ -21,9 +21,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showEditDialog(context),
+        onPressed: () => _showEditDialog(context, null),
         tooltip: 'Add Task',
-        child: const Icon(Icons.add_card_outlined),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -62,43 +62,53 @@ class _MyHomePageState extends State<MyHomePage> {
           subtitle: Text(task.description),
           trailing: IconButton(
             icon: const Icon(Icons.delete, color: Colors.blueGrey),
-            onPressed: () => _removeTask(index),
+            onPressed: () => _showDeleteConfirmationDialog(context, index),
           ),
-          onTap: () => _showEditDialog(context),
+          onTap: () => _showEditDialog(context, task, index),
         ),
       ),
     );
   }
 
-  void _showEditDialog(BuildContext context) {
-    String title = '';
-    String description = '';
+  void _showEditDialog(BuildContext context, Task? task, [int? index]) {
+    String title = task?.title ?? '';
+    String description = task?.description ?? '';
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Add Task',style:TextStyle(color: Colors.lightBlue)),
+          title: const Text('Edit Task',
+              style: TextStyle(color: Colors.lightBlue)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildTextField('Title',(value) => title = value),
-              _buildTextField('Description', (value) => description = value),
+              _buildTextField('Title', (value) => title = value,
+                  initialValue: title),
+              _buildTextField('Description', (value) => description = value,
+                  initialValue: description),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel',style: TextStyle(color: Colors.indigo),),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.indigo)),
             ),
             TextButton(
               onPressed: () {
                 if (title.isNotEmpty && description.isNotEmpty) {
-                  _addTask(Task(title: title, description: description));
+                  if (task == null) {
+                    _addTask(Task(title: title, description: description));
+                  } else {
+                    _updateTask(
+                        index!, Task(title: title, description: description));
+                  }
                 }
                 Navigator.of(context).pop();
               },
-              child: const Text('Save',style: TextStyle(color: Colors.deepOrange),),
+              child: const Text('Submit',
+                  style: TextStyle(color: Colors.deepOrange)),
             ),
           ],
         );
@@ -106,16 +116,50 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildTextField(String label, Function(String) onChanged) {
+  void _showDeleteConfirmationDialog(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Task', style: TextStyle(color: Colors.red)),
+          content: const Text('Are you sure you want to delete this task?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+            ),
+            TextButton(
+              onPressed: () {
+                _removeTask(index);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTextField(String label, Function(String) onChanged,
+      {String? initialValue}) {
     return TextField(
+      controller: TextEditingController(text: initialValue),
       decoration: InputDecoration(labelText: label),
       onChanged: onChanged,
-    );
+    ); 
+
   }
 
   void _addTask(Task task) {
     setState(() {
       _tasks.add(task);
+    });
+  }
+
+  void _updateTask(int index, Task task) {
+    setState(() {
+      _tasks[index] = task;
     });
   }
 
