@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'task_notifier.dart'; 
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -10,8 +12,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Task> _tasks = [];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,29 +29,33 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildBody() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const SizedBox(height: 10),
-          Expanded(child: _buildTaskList()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTaskList() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      itemCount: _tasks.length,
-      itemBuilder: (context, index) {
-        return _buildTaskItem(index);
+    return Consumer<TaskNotifier>(
+      builder: (context, taskNotifier, child) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const SizedBox(height: 10),
+              Expanded(child: _buildTaskList(taskNotifier)),
+            ],
+          ),
+        );
       },
     );
   }
 
-  Widget _buildTaskItem(int index) {
-    final task = _tasks[index];
+  Widget _buildTaskList(TaskNotifier taskNotifier) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      itemCount: taskNotifier.tasks.length,
+      itemBuilder: (context, index) {
+        return _buildTaskItem(taskNotifier, index);
+      },
+    );
+  }
+
+  Widget _buildTaskItem(TaskNotifier taskNotifier, int index) {
+    final task = taskNotifier.tasks[index];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Card(
@@ -61,8 +65,10 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(task.title),
           subtitle: Text(task.description),
           trailing: IconButton(
-            icon: const Icon(Icons.delete, color: Colors.blueGrey),
-            onPressed: () => _showDeleteConfirmationDialog(context, index),
+            icon: const Icon(Icons.delete_forever_rounded,
+                size: 28, color: Color.fromARGB(255, 227, 98, 89)),
+            onPressed: () =>
+                _showDeleteConfirmationDialog(context, taskNotifier, index),
           ),
           onTap: () => _showEditDialog(context, task, index),
         ),
@@ -98,10 +104,13 @@ class _MyHomePageState extends State<MyHomePage> {
             TextButton(
               onPressed: () {
                 if (title.isNotEmpty && description.isNotEmpty) {
+                  final taskNotifier =
+                      Provider.of<TaskNotifier>(context, listen: false);
                   if (task == null) {
-                    _addTask(Task(title: title, description: description));
+                    taskNotifier
+                        .addTask(Task(title: title, description: description));
                   } else {
-                    _updateTask(
+                    taskNotifier.updateTask(
                         index!, Task(title: title, description: description));
                   }
                 }
@@ -116,7 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, int index) {
+  void _showDeleteConfirmationDialog(
+      BuildContext context, TaskNotifier taskNotifier, int index) {
     showDialog(
       context: context,
       builder: (context) {
@@ -130,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             TextButton(
               onPressed: () {
-                _removeTask(index);
+                taskNotifier.removeTask(index);
                 Navigator.of(context).pop();
               },
               child: const Text('Delete', style: TextStyle(color: Colors.red)),
@@ -147,34 +157,6 @@ class _MyHomePageState extends State<MyHomePage> {
       controller: TextEditingController(text: initialValue),
       decoration: InputDecoration(labelText: label),
       onChanged: onChanged,
-    ); 
-
+    );
   }
-
-  void _addTask(Task task) {
-    setState(() {
-      _tasks.add(task);
-    });
-  }
-
-  void _updateTask(int index, Task task) {
-    setState(() {
-      _tasks[index] = task;
-    });
-  }
-
-  void _removeTask(int index) {
-    setState(() {
-      if (_tasks.isNotEmpty) {
-        _tasks.removeAt(index);
-      }
-    });
-  }
-}
-
-class Task {
-  final String title;
-  final String description;
-
-  Task({required this.title, required this.description});
 }
