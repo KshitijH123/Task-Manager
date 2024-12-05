@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
       itemBuilder: (context, index) {
         return _buildTaskItem(taskNotifier, index);
       },
-    );
+    );   
   }
 
   Widget _buildTaskItem(TaskNotifier taskNotifier, int index) {
@@ -131,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Task', style: TextStyle(color: Colors.red)),
+          title: const Text('Delete Task', style: TextStyle(color: Color.fromARGB(255, 218, 96, 87))),
           content: const Text('Are you sure you want to delete this task?'),
           actions: [
             TextButton(
@@ -143,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 taskNotifier.removeTask(index);
                 Navigator.of(context).pop();
               },
-              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+              child: const Text('Delete', style: TextStyle(color: Color.fromARGB(255, 219, 110, 103))),
             ),
           ],
         );
@@ -158,5 +158,5 @@ class _MyHomePageState extends State<MyHomePage> {
       decoration: InputDecoration(labelText: label),
       onChanged: onChanged,
     );
-  }
+  }//
 }
