@@ -23,7 +23,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showEditDialog(context, null),
         tooltip: 'Add Task',
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add_card_rounded),
       ),
     );
   }
