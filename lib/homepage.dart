@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child:
-                  const Text('Cancel', style: TextStyle(color: Colors.indigo)),
+                  const Text('Cancel', style: TextStyle(color: Color.fromARGB(255, 48, 59, 133))),
             ),
             TextButton(
               onPressed: () {
@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.of(context).pop();
               },
               child: const Text('Submit',
-                  style: TextStyle(color: Colors.deepOrange)),
+                  style: TextStyle(color: Color.fromARGB(255, 212, 129, 104))),
             ),
           ],
         );
