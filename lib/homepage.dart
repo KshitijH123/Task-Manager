@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'task_notifier.dart'; 
+import 'task_notifier.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
       itemBuilder: (context, index) {
         return _buildTaskItem(taskNotifier, index);
       },
-    );   
+    );
   }
 
   Widget _buildTaskItem(TaskNotifier taskNotifier, int index) {
@@ -83,69 +83,67 @@ class _MyHomePageState extends State<MyHomePage> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Edit Task',
-              style: TextStyle(color: Colors.lightBlue)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildTextField('Title', (value) => title = value,
-                  initialValue: title),
-              _buildTextField('Description', (value) => description = value,
-                  initialValue: description),
-            ],
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0), 
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child:
-                  const Text('Cancel', style: TextStyle(color: Color.fromARGB(255, 48, 59, 133))),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Title
+                Text(
+                  'Edit Task',
+                  style: TextStyle(
+                    color: Colors.lightBlue,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildTextField('Title', (value) => title = value,
+                    initialValue: title),
+                const SizedBox(height: 12),
+                _buildTextField('Description', (value) => description = value,
+                    initialValue: description),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        if (title.isNotEmpty && description.isNotEmpty) {
+                          final taskNotifier =
+                              Provider.of<TaskNotifier>(context, listen: false);
+                          if (task == null) {
+                            taskNotifier.addTask(
+                                Task(title: title, description: description));
+                          } else {
+                            taskNotifier.updateTask(index!,
+                                Task(title: title, description: description));
+                          }
+                        }
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        'Submit',
+                        style: TextStyle(color: Colors.orange),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () {
-                if (title.isNotEmpty && description.isNotEmpty) {
-                  final taskNotifier =
-                      Provider.of<TaskNotifier>(context, listen: false);
-                  if (task == null) {
-                    taskNotifier
-                        .addTask(Task(title: title, description: description));
-                  } else {
-                    taskNotifier.updateTask(
-                        index!, Task(title: title, description: description));
-                  }
-                }
-                Navigator.of(context).pop();
-              },
-              child: const Text('Submit',
-                  style: TextStyle(color: Color.fromARGB(255, 212, 129, 104))),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showDeleteConfirmationDialog(
-      BuildContext context, TaskNotifier taskNotifier, int index) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Delete Task', style: TextStyle(color: Color.fromARGB(255, 218, 96, 87))),
-          content: const Text('Are you sure you want to delete this task?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
-            ),
-            TextButton(
-              onPressed: () {
-                taskNotifier.removeTask(index);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Delete', style: TextStyle(color: Color.fromARGB(255, 219, 110, 103))),
-            ),
-          ],
+          ),
         );
       },
     );
@@ -155,8 +153,58 @@ class _MyHomePageState extends State<MyHomePage> {
       {String? initialValue}) {
     return TextField(
       controller: TextEditingController(text: initialValue),
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon:
+            Icon(Icons.edit, color: Colors.blue), 
+        border: OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(8.0), 
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue, width: 2),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey, width: 1),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+      ),
       onChanged: onChanged,
     );
-  }//
+  }
+}
+void _showDeleteConfirmationDialog(
+    BuildContext context, TaskNotifier taskNotifier, int index) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text(
+          'Delete Task',
+          style: TextStyle(color: Color.fromARGB(255, 218, 96, 87)),
+        ),
+        content: const Text('Are you sure you want to delete this task?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.blue),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              taskNotifier.removeTask(index); 
+              Navigator.of(context).pop();
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Color.fromARGB(255, 219, 110, 103)),
+            ),
+          ),
+        ],
+      );
+    },
+  );
 }
